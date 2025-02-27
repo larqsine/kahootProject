@@ -18,6 +18,14 @@ namespace NUnit;
 [TestFixture(typeof(DictionaryConnectionManager))]
 public class ConnectionWithWsClient(Type connectionManagerType) : WebApplicationFactory<Program>
 {
+    private ILogger<ConnectionWithWsClient> _logger;
+    private HttpClient _httpClient;
+    private KahootContext _dbContext;
+    private IConnectionManager _connectionManager;
+    private string _wsClientId;
+    private WsRequestClient _wsClient;
+    private IServiceScope _scope;
+    
     [SetUp]
     public async Task Setup()
     {
@@ -46,13 +54,7 @@ public class ConnectionWithWsClient(Type connectionManagerType) : WebApplication
         await Task.Delay(1000);
     }
 
-    private ILogger<ConnectionWithWsClient> _logger;
-    private HttpClient _httpClient;
-    private KahootContext _dbContext;
-    private IConnectionManager _connectionManager;
-    private string _wsClientId;
-    private WsRequestClient _wsClient;
-    private IServiceScope _scope;
+ 
 
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

@@ -9,7 +9,7 @@ gcloud iam service-accounts list
 if you don't have a service account, you can create one with:
 
 ```bash
-gcloud iam service-accounts create YOUR_SERVICE_ACCOUNT_NAME   
+gcloud iam service-accounts create YOUR_SERVICE_ACCOUNT_EMAIL 
 ```
 if you don't have necessary roles for service accounts: 
 ```bash
@@ -23,8 +23,7 @@ gcloud projects add-iam-policy-binding YOUR_PROJECT_ID --member=serviceAccount:Y
 gcloud iam service-accounts keys create key.json --iam-account YOUR_SERVICE_ACCOUNT_EMAIL
 ```
 
-
-Use the key.json file contents as a repo secret: (here named GCP_SA_KEY)
+Use the generated key.json file contents as a repo secret: (here named GCP_SA_KEY)
 
 ![alt text](image-1.png)
 
@@ -44,15 +43,33 @@ Put the EF format string into repository secret named DBCONNECTIONSTRING
 ### Step 3: Profit
 
 
-## Adding your own production URL
+## Adding your own production URL to your WebSocket API
 
+You can always find your production URL on cloud run:
 
-in client/.env.production swap the value to your gcloud run deployment URL
+![alt text](image-4.png)
+
+Then in /client/.env.production swap the value to your gcloud run deployment URL (currently using my own)
 
 ```
 VITE_API_BASE_URL=wss://kahoot-267099996159.europe-north1.run.app
 ```
 
+
 It will be used in App.tsx like this:
 
 ![alt text](image-3.png)
+
+.env.development uses localhost:8080 - you can change this if you'd like.
+
+
+## Adding Firebase token
+
+I recommend starting out by removing /client/.firebaserc and /client/firebase.json.
+
+Simply use the firebase CLI (npm i firebase-tools) to add CI/CD with these command: 
+
+```
+firebase init hosting
+```
+Remember to say yes to CI/CD and configure the "public" path to the "dist" folder in the "client" directory (where vite will output the build when running npm run build). The paths in the yml file should also be accordingly (you can check mine for reference).
