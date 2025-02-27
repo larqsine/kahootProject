@@ -44,7 +44,7 @@ public class ConnectionWithWsClient(Type connectionManagerType) : WebApplication
         
         var wsPort = Environment.GetEnvironmentVariable("PORT");
         if (string.IsNullOrEmpty(wsPort)) throw new Exception("Environment variable WS_PORT is not set");
-        _wsClientId = "client" + Guid.NewGuid();
+        _wsClientId = Guid.NewGuid().ToString();
         var url = "ws://localhost:" + wsPort + "?id=" + _wsClientId;
         _wsClient = new WsRequestClient(
             new[] { typeof(ClientEntersLobbyDto).Assembly },
