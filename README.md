@@ -42,3 +42,17 @@ https://rpede.github.io/connection_strings/
 Put the EF format string into repository secret named DBCONNECTIONSTRING
 
 ### Step 3: Profit
+
+
+## Adding your own production URL
+
+
+in client/.env.production swap the value to your gcloud run deployment URL
+
+```
+VITE_API_BASE_URL=wss://kahoot-267099996159.europe-north1.run.app
+```
+
+It will be used in App.tsx like this:
+
+![alt text](image-3.png)

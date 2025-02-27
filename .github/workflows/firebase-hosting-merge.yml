@@ -4,6 +4,7 @@
 #note to readers: I have modified the path to adjust to my file structure
 
 name: Deploy to Firebase Hosting on merge
+
 on:
   workflow_dispatch:
   push:

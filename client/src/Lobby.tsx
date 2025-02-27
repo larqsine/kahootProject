@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 export default function Lobby() {
     
     const {onMessage, sendRequest, send, readyState} = useWsClient();
-    const [clients, setClients] = useState<string[]>([''])
+   
 
     useEffect(() => {
         if (readyState !== 1) return;
@@ -12,10 +12,7 @@ export default function Lobby() {
     }, [readyState]); 
 
     return (<>
-        <div>Clients in the lobbby:</div>
-        {
-            clients.map(c => <div key={c}>{c}</div>)
-        }
+        <>hello world</>
 
     </>)
 }
