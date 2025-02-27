@@ -57,7 +57,7 @@ Once this is configured, we can deploy using the gcloud.yml file in .github/work
 
 ## Adding your own production URL to your WebSocket API
 
-You can always find your production URL on cloud run:
+You can always find your production URL on cloud run: (dont forget to switch https and wss)
 
 ![alt text](image-4.png)
 
