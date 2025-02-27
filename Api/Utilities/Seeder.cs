@@ -7,6 +7,7 @@ public class Seeder(KahootContext context)
 {
     public async Task<string> SeedDefaultGameReturnId()
     {
+        await context.Database.EnsureCreatedAsync();
         var gameId = Guid.NewGuid().ToString();
         var game = new Game
         {
