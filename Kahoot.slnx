@@ -1,0 +1,5 @@
+<Solution>
+    <Project Path="Api/Api.csproj" Type="Classic C#"/>
+    <Project Path="NUnitTests/NUnitTests.csproj" Type="Classic C#"/>
+    <Project Path="EFScaffold/EFScaffold.csproj" Type="Classic C#"/>
+</Solution>
