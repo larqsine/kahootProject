@@ -54,6 +54,8 @@ Use the generated key.json file contents as a repo secret: (here named GCP_SA_KE
 Once this is configured, we can deploy using the gcloud.yml file in .github/workflows. 
 *(It uses the Dockerfile in the root directory to publish an image.)*
 
+If you're getting rejected when establishing conncetion, go to the security tab on the Google Cloud Run console and allow unauthenticated invocations:
+![alt text](image-5.png)
 
 ## Adding your own production URL to your WebSocket API
 
