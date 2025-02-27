@@ -49,7 +49,9 @@ public class Program
         app.Services.GetRequiredService<CustomWebSocketServer>().Start(app);
         app.Urls.Clear();
         app.Urls.Add("http://*:5000"); //making sure the web api doesnt take up port 8080 which is used by the websocket server
-
         app.Run();
     }
 }
+
+//if you get: No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+//Then it's just because it looks for controller but doesn't find any. This doesn't matter because we're making websockets.
