@@ -119,5 +119,6 @@ public class ConnectionWithWsClient(Type connectionManagerType) : WebApplication
         if (topicDictionaryEntry.Value.First() != _wsClientId)
             throw new Exception("Expected " + _wsClientId + " to be in the hashset: " +
                                 memberDictionaryEntry.Value.ToList());
+        
     }
 }

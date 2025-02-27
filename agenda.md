@@ -7,8 +7,10 @@
   - scaffold command
   - environment variables
   - production url switch with Vite
+  - Nswag
 - Workflow files
 - Testing
-  - ws request client
   - port switching in testing
-  - nunit
+  - nunit (attributes, [SetUp] + [Theory])
+  - Exceptions instead of assertion library usage
+  - ws request client

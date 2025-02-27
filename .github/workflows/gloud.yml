@@ -25,7 +25,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: kahootclone
+          service: kahoottemplate
           region: europe-north1
           source: .
           flags: --allow-unauthenticated
