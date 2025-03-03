@@ -74,6 +74,9 @@ const GameHost: React.FC = () => {
         if (!gameId) return;
 
         try {
+            // Re-register as host before adding question
+            await signalRService.registerAsHost();
+
             await signalRService.addQuestion(gameId, questionText, options);
 
             // Refresh game details

@@ -68,13 +68,75 @@ public class GameHub : Hub
         return await _gameService.GetGameById(gameId);
     }
     
-    public async Task<Question> AddQuestion(string gameId, string questionText, List<(string text, bool isCorrect)> options)
+    public async Task<object> AddQuestion(string gameId, string questionText, List<QuestionOptionDto> options)
+{
+    if (!IsHostOrAdmin())
+        throw new HubException("Only hosts can add questions");
+    
+    try
     {
-        if (!IsHostOrAdmin())
-            throw new HubException("Only hosts can add questions");
+        // Debug received data
+        Console.WriteLine($"Received question: {questionText}");
+        Console.WriteLine($"Options count: {options?.Count}");
+    
+        // Create question
+        var question = new Question
+        {
+            Id = Guid.NewGuid().ToString(),
+            GameId = gameId,
+            QuestionText = questionText,
+            Answered = false
+        };
+    
+        _context.Questions.Add(question);
+    
+        // Filter out any null or empty options
+        var validOptions = options?.Where(o => !string.IsNullOrWhiteSpace(o.Text)).ToList();
+    
+        if (validOptions == null || validOptions.Count == 0)
+            throw new HubException("At least one valid option is required");
+        
+        // Create list to store option IDs
+        var createdOptions = new List<object>();
+        
+        foreach (var option in validOptions)
+        {
+            Console.WriteLine($"Adding option: {option.Text}, IsCorrect: {option.IsCorrect}");
             
-        return await _gameService.AddQuestion(gameId, questionText, options);
+            var questionOption = new QuestionOption
+            {
+                Id = Guid.NewGuid().ToString(),
+                QuestionId = question.Id,
+                OptionText = option.Text,
+                IsCorrect = option.IsCorrect
+            };
+            
+            _context.QuestionOptions.Add(questionOption);
+            
+            // Add to simplified list
+            createdOptions.Add(new { 
+                id = questionOption.Id,
+                text = questionOption.OptionText,
+                isCorrect = questionOption.IsCorrect
+            });
+        }
+    
+        await _context.SaveChangesAsync();
+        
+        // Return a simple DTO object instead of the EF entity
+        return new {
+            id = question.Id,
+            text = question.QuestionText,
+            options = createdOptions
+        };
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"ERROR in AddQuestion: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        throw;
+    }
+}
     
     public async Task StartGame(string gameId)
     {
@@ -141,5 +203,11 @@ public class GameHub : Hub
     private bool IsHostOrAdmin()
     {
         return Context.Items["Role"]?.ToString() == "host";
+    }
+    
+    public class QuestionOptionDto
+    {
+        public string Text { get; set; }
+        public bool IsCorrect { get; set; }
     }
 }

@@ -45,8 +45,22 @@ class SignalRService {
     // Host methods
     async registerAsHost() {
         await this.connect();
-        await this.connection.invoke('RegisterAsHost');
-        return true;
+
+        // Add explicit error handling and retry logic
+        try {
+            await this.connection.invoke('RegisterAsHost');
+            console.log("Successfully registered as host");
+            return true;
+        } catch (error) {
+            console.error("Error registering as host:", error);
+
+            // Try reconnecting and registering again
+            await this.connection.stop();
+            this.connectionPromise = null;
+            await this.connect();
+            await this.connection.invoke('RegisterAsHost');
+            return true;
+        }
     }
 
     async createGame(name: string) {
