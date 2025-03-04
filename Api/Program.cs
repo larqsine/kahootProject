@@ -8,11 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// SignalR configuration
+// SignalR configuration with JSON cycle handling
 builder.Services.AddSignalR(options => {
     options.HandshakeTimeout = TimeSpan.FromSeconds(30);
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
     options.EnableDetailedErrors = true;
+}).AddJsonProtocol(options => {
+    options.PayloadSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    options.PayloadSerializerOptions.MaxDepth = 128; // Increase from default 64
 });
 
 // CORS is still needed

@@ -58,17 +58,53 @@ public class GameHub : Hub
         return game.Id;
     }
     
-    public async Task<List<Game>> GetGames()
+    public async Task<List<Dto.GameDto>> GetGames()
     {
-        return await _gameService.GetGames();
+        var games = await _gameService.GetGames();
+        Console.WriteLine($"GameService returned {games.Count} games");
+    
+        var gameDtos = games.Select(game => new Dto.GameDto
+        {
+            Id = game.Id,
+            Name = game.Name,
+            Players = new List<Dto.PlayerDto>(),
+            Questions = new List<Dto.QuestionDto>()
+        }).ToList();
+    
+        Console.WriteLine($"Returning {gameDtos.Count} game DTOs to client");
+        return gameDtos;
     }
     
-    public async Task<Game> GetGameById(string gameId)
+    public async Task<Dto.GameDto> GetGameById(string gameId)
     {
-        return await _gameService.GetGameById(gameId);
+        var game = await _gameService.GetGameById(gameId);
+        if (game == null) return null;
+
+        return new Dto.GameDto
+        {
+            Id = game.Id,
+            Name = game.Name,
+            Players = game.Players.Select(p => new Dto.PlayerDto
+            {
+                Id = p.Id,
+                Nickname = p.Nickname
+            }).ToList(),
+            Questions = game.Questions.Select(q => new Dto.QuestionDto
+            {
+                Id = q.Id,
+                QuestionText = q.QuestionText,
+                Answered = q.Answered,
+                Options = q.QuestionOptions.Select(o => new Dto.QuestionOptionDto
+                {
+                    Id = o.Id,
+                    Text = o.OptionText,
+                    IsCorrect = o.IsCorrect
+                }).ToList()
+            }).ToList()
+        };
     }
     
-    public async Task<object> AddQuestion(string gameId, string questionText, List<QuestionOptionDto> options)
+    public async Task<object> AddQuestion(string gameId, string questionText, List<Dto.QuestionOptionDto> options)
 {
     if (!IsHostOrAdmin())
         throw new HubException("Only hosts can add questions");
@@ -203,11 +239,5 @@ public class GameHub : Hub
     private bool IsHostOrAdmin()
     {
         return Context.Items["Role"]?.ToString() == "host";
-    }
-    
-    public class QuestionOptionDto
-    {
-        public string Text { get; set; }
-        public bool IsCorrect { get; set; }
     }
 }

@@ -70,7 +70,25 @@ class SignalRService {
 
     async getGames() {
         await this.connect();
-        return await this.connection.invoke('GetGames');
+        try {
+            console.log("Calling GetGames hub method...");
+            const result = await this.connection.invoke('GetGames');
+            console.log("Raw result from GetGames:", result);
+
+            // Extract data from preserved references format
+            let games = [];
+            if (result && result.$values) {
+                games = result.$values;
+            } else if (Array.isArray(result)) {
+                games = result;
+            }
+
+            console.log("Processed games array:", games);
+            return games;
+        } catch (error) {
+            console.error("Error getting games:", error);
+            return [];
+        }
     }
 
     async addQuestion(gameId: string, questionText: string, options: {text: string, isCorrect: boolean}[]) {

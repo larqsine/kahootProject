@@ -93,7 +93,18 @@ public class GameService
     
     public async Task<List<Game>> GetGames()
     {
-        return await _context.Games.ToListAsync();
+        // Add logging
+        var games = await _context.Games
+            .AsNoTracking()
+            .ToListAsync();
+    
+        Console.WriteLine($"Database returned {games.Count} games");
+        foreach (var game in games)
+        {
+            Console.WriteLine($"Game: {game.Id} - {game.Name}");
+        }
+    
+        return games;
     }
     
     public async Task<Game> GetGameById(string gameId)

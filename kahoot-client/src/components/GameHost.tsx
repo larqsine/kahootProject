@@ -48,9 +48,12 @@ const GameHost: React.FC = () => {
     const loadGames = async () => {
         try {
             const gameList = await signalRService.getGames();
-            setGames(gameList);
+            // Make sure we always set an array
+            setGames(Array.isArray(gameList) ? gameList : []);
+            console.log("Games loaded:", gameList); // Add this for debugging
         } catch (error) {
             console.error('Failed to load games:', error);
+            setGames([]);
         }
     };
 
@@ -150,11 +153,15 @@ const GameHost: React.FC = () => {
 
                             <h3>Existing Games</h3>
                             <ul className="list-group">
-                                {games.map(game => (
-                                    <li key={game.id} className="list-group-item">
-                                        {game.name}
-                                    </li>
-                                ))}
+                                {Array.isArray(games) ? (
+                                    games.map(game => (
+                                        <li key={game.id} className="list-group-item">
+                                            {game.name}
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li className="list-group-item">No games available</li>
+                                )}
                             </ul>
                         </div>
                     ) : (
