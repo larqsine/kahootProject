@@ -1,5 +1,12 @@
 ﻿import * as signalR from '@microsoft/signalr';
 
+function extractArray(data: any): any[] {
+    if (!data) return [];
+    if (data.$values) return data.$values;
+    if (Array.isArray(data)) return data;
+    return [];
+}
+
 class SignalRService {
     private connection: signalR.HubConnection;
     private connectionPromise: Promise<void> | null = null;
@@ -74,15 +81,7 @@ class SignalRService {
             console.log("Calling GetGames hub method...");
             const result = await this.connection.invoke('GetGames');
             console.log("Raw result from GetGames:", result);
-
-            // Extract data from preserved references format
-            let games = [];
-            if (result && result.$values) {
-                games = result.$values;
-            } else if (Array.isArray(result)) {
-                games = result;
-            }
-
+            const games = extractArray(result);
             console.log("Processed games array:", games);
             return games;
         } catch (error) {
@@ -126,39 +125,66 @@ class SignalRService {
         await this.connect();
         await this.connection.invoke('SubmitAnswer', questionId, optionId);
     }
-
+    
     async getGameById(gameId: string) {
         await this.connect();
-        return await this.connection.invoke('GetGameById', gameId);
+        try {
+            const result = await this.connection.invoke('GetGameById', gameId);
+            console.log("Raw game data:", result);
+
+            // Process nested arrays in the result
+            if (result) {
+                if (result.questions && result.questions.$values) {
+                    result.questions = result.questions.$values;
+                }
+                if (result.players && result.players.$values) {
+                    result.players = result.players.$values;
+                }
+
+                // Process question options as well
+                if (result.questions) {
+                    result.questions.forEach((q: any) => {
+                        if (q.options && q.options.$values) {
+                            q.options = q.options.$values;
+                        }
+                    });
+                }
+            }
+
+            return result;
+        } catch (error) {
+            console.error("Error getting game details:", error);
+            return null;
+        }
     }
 
     // Events
     onPlayerJoined(callback: (nickname: string) => void) {
-        this.connection.on('PlayerJoined', callback);
+        this.connection.on('PlayerJoined', callback);  // Changed from 'playerjoined'
     }
 
     onGameStarted(callback: () => void) {
-        this.connection.on('GameStarted', callback);
+        this.connection.on('GameStarted', callback);  // Changed from 'gamestarted'
     }
 
     onQuestionStarted(callback: (question: any) => void) {
-        this.connection.on('QuestionStarted', callback);
+        this.connection.on('QuestionStarted', callback);  // Changed from 'questionstarted'
     }
 
     onQuestionEnded(callback: (questionId: string) => void) {
-        this.connection.on('QuestionEnded', callback);
+        this.connection.on('QuestionEnded', callback);  // Changed from 'questionended'
     }
 
     onScoresUpdated(callback: (scores: Record<string, number>) => void) {
-        this.connection.on('ScoresUpdated', callback);
+        this.connection.on('ScoresUpdated', callback);  // Changed from 'scoresupdated'
     }
 
     onPlayerLeft(callback: (playerId: string) => void) {
-        this.connection.on('PlayerLeft', callback);
+        this.connection.on('PlayerLeft', callback);  // Changed from 'playerleft'
     }
 
     onHostRegistered(callback: () => void) {
-        this.connection.on('HostRegistered', callback);
+        this.connection.on('HostRegistered', callback);  // Changed from 'hostregistered'
     }
 }
 

@@ -57,6 +57,33 @@ const GameHost: React.FC = () => {
         }
     };
 
+    const loadGameDetails = async (id: string) => {
+        try {
+            const gameDetails = await signalRService.getGameById(id);
+            console.log("Game details loaded:", gameDetails);
+
+            // Make sure we process nested arrays
+            if (gameDetails && gameDetails.questions) {
+                if (gameDetails.questions.$values) {
+                    gameDetails.questions = gameDetails.questions.$values;
+                }
+
+                // Also handle each question's options
+                if (Array.isArray(gameDetails.questions)) {
+                    gameDetails.questions.forEach((q: any) => {
+                        if (q.options && q.options.$values) {
+                            q.options = q.options.$values;
+                        }
+                    });
+                }
+            }
+
+            setCurrentGame(gameDetails);
+        } catch (error) {
+            console.error('Failed to load game details:', error);
+        }
+    };
+
     const createGame = async () => {
         if (!gameName) return;
 
@@ -65,9 +92,8 @@ const GameHost: React.FC = () => {
             setGameId(id);
             loadGames();
 
-            // Load game details
-            const gameDetails = await signalRService.getGameById(id);
-            setCurrentGame(gameDetails);
+            // Use the new function instead of direct API call
+            await loadGameDetails(id);
         } catch (error) {
             console.error('Failed to create game:', error);
         }
@@ -194,26 +220,30 @@ const GameHost: React.FC = () => {
                                 <div className="card mb-4 p-3">
                                     <h3>Questions</h3>
                                     <ul className="list-group mb-3">
-                                        {currentGame?.questions?.map((q: any) => (
-                                            <li key={q.id} className="list-group-item">
-                                                {q.questionText}
-                                                {currentQuestionId === q.id ? (
-                                                    <button
-                                                        className="btn btn-warning ms-2"
-                                                        onClick={() => endQuestion()}
-                                                    >
-                                                        End Question
-                                                    </button>
-                                                ) : !q.answered && (
-                                                    <button
-                                                        className="btn btn-primary ms-2"
-                                                        onClick={() => startQuestion(q.id)}
-                                                    >
-                                                        Start Question
-                                                    </button>
-                                                )}
-                                            </li>
-                                        ))}
+                                        {Array.isArray(currentGame?.questions) ? (
+                                            currentGame.questions.map((q: any) => (
+                                                <li key={q.id} className="list-group-item">
+                                                    {q.questionText}
+                                                    {currentQuestionId === q.id ? (
+                                                        <button
+                                                            className="btn btn-warning ms-2"
+                                                            onClick={() => endQuestion()}
+                                                        >
+                                                            End Question
+                                                        </button>
+                                                    ) : !q.answered && (
+                                                        <button
+                                                            className="btn btn-primary ms-2"
+                                                            onClick={() => startQuestion(q.id)}
+                                                        >
+                                                            Start Question
+                                                        </button>
+                                                    )}
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className="list-group-item">No questions available</li>
+                                        )}
                                     </ul>
 
                                     <ScoreBoard scores={scores} />

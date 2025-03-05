@@ -17,6 +17,13 @@ const GamePlayer: React.FC = () => {
         });
 
         signalRService.onQuestionStarted((question) => {
+            console.log("Raw question data:", question);
+
+            // Process options if they're in $values format
+            if (question && question.options && question.options.$values) {
+                question.options = question.options.$values;
+            }
+
             setCurrentQuestion(question);
             setSelectedOption('');
             setAnswered(false);
@@ -102,26 +109,32 @@ const GamePlayer: React.FC = () => {
                                 Waiting for the next question...
                             </div>
                         ) : (
-                            <div className="card p-3">
-                                <h4>{currentQuestion.text}</h4>
-                                <div className="list-group">
-                                    {currentQuestion.options.map((option: any) => (
-                                        <button
-                                            key={option.id}
-                                            className={`list-group-item list-group-item-action ${selectedOption === option.id ? 'active' : ''}`}
-                                            disabled={answered}
-                                            onClick={() => submitAnswer(option.id)}
-                                        >
-                                            {option.text}
-                                        </button>
-                                    ))}
-                                </div>
-                                {answered && (
-                                    <div className="alert alert-success mt-3">
-                                        Answer submitted!
+                            currentQuestion && (
+                                <div className="card p-3">
+                                    <h4>{currentQuestion.text}</h4>
+                                    <div className="list-group">
+                                        {Array.isArray(currentQuestion.options) ? (
+                                            currentQuestion.options.map((option: any) => (
+                                                <button
+                                                    key={option.id}
+                                                    className={`list-group-item list-group-item-action ${selectedOption === option.id ? 'active' : ''}`}
+                                                    disabled={answered}
+                                                    onClick={() => submitAnswer(option.id)}
+                                                >
+                                                    {option.text}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <div className="alert alert-warning">No options available</div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
+                                    {answered && (
+                                        <div className="alert alert-success mt-3">
+                                            Answer submitted!
+                                        </div>
+                                    )}
+                                </div>
+                            )
                         )}
                     </div>
 
